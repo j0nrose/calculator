@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Testing Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 2px solid #f0f0f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .demo-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .demo-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            border-bottom: 3px solid #4facfe;
+            padding-bottom: 10px;
+        }
+
+        .test-results {
+            grid-column: 1 / -1;
+            background: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            min-height: 300px;
+            overflow: auto;
+        }
+
+        .test-results h3 {
+            color: #00ff00;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 10px;
+        }
+
+        .test-passed {
+            color: #00ff00;
+            margin: 5px 0;
+        }
+
+        .test-failed {
+            color: #ff4444;
+            margin: 5px 0;
+        }
+
+        .test-info {
+            color: #ffaa00;
+            margin: 5px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        input, select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .calculator {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .calculator input {
+            grid-column: 1 / -1;
+            text-align: right;
+            font-size: 1.2em;
+            background: #f8f9fa;
+        }
+
+        .todo-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .todo-item:hover {
+            background: #e9ecef;
+        }
+
+        .todo-item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe, #00f2fe);
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Interactive Unit Testing Demo</h1>
+            <p>Five intermediate test cases demonstrating JavaScript testing concepts</p>
+        </div>
+
+        <div class="main-content">
+            <div class="demo-section">
+                <h3>📊 Data Structures & Algorithms</h3>
+                <button onclick="testDataStructures()">Test Array Operations</button>
+                <button onclick="testSorting()">Test Sorting Algorithm</button>
+                <div id="arrayDemo">
+                    <p>Original: [64, 34, 25, 12, 22, 11, 90]</p>
+                    <p id="sortedResult">Sorted: Click to test!</p>
+                </div>
+            </div>
+
+            <div class="demo-section">
+                <h3>🧮 Calculator Testing</h3>
+                <div class="calculator">
+                    <input type="text" id="calcDisplay" value="0" readonly>
+                    <button onclick="clearCalc()">C</button>
+                    <button onclick="appendToCalc('/')">/</button>
+                    <button onclick="appendToCalc('*')">*</button>
+                    <button onclick="deleteLast()">⌫</button>
+                    <button onclick="appendToCalc('7')">7</button>
+                    <button onclick="appendToCalc('8')">8</button>
+                    <button onclick="appendToCalc('9')">9</button>
+                    <button onclick="appendToCalc('-')">-</button>
+                    <button onclick="appendToCalc('4')">4</button>
+                    <button onclick="appendToCalc('5')">5</button>
+                    <button onclick="appendToCalc('6')">6</button>
+                    <button onclick="appendToCalc('+')">+</button>
+                    <button onclick="appendToCalc('1')">1</button>
+                    <button onclick="appendToCalc('2')">2</button>
+                    <button onclick="appendToCalc('3')">3</button>
+                    <button onclick="calculate()" style="grid-row: span 2;">=</button>
+                    <button onclick="appendToCalc('0')" style="grid-column: span 2;">0</button>
+                    <button onclick="appendToCalc('.')">.</button>
+                </div>
+                <button onclick="testCalculator()">Run Calculator Tests</button>
+            </div>
+
+            <div class="demo-section">
+                <h3>📝 Todo List Testing</h3>
+                <input type="text" id="todoInput" placeholder="Add a new task...">
+                <button onclick="addTodo()">Add Task</button>
+                <button onclick="testTodoList()">Test Todo Functions</button>
+                <div id="todoList"></div>
+            </div>
+
+            <div class="demo-section">
+                <h3>⏱️ Async Operations</h3>
+                <button onclick="testAsyncOperations()">Test Promises & Async</button>
+                <button onclick="simulateApiCall()">Simulate API Call</button>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="asyncProgress" style="width: 0%"></div>
+                </div>
+                <p id="asyncStatus">Ready to test async operations</p>
+            </div>
+
+            <div class="demo-section">
+                <h3>🎯 Event Handling</h3>
+                <button onclick="testEventHandling()">Test Event System</button>
+                <button id="eventTestBtn" onclick="handleTestEvent()">Click Me!</button>
+                <select id="eventSelect" onchange="handleSelectChange(this.value)">
+                    <option value="">Select an option</option>
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+                <p id="eventStatus">No events triggered yet</p>
+            </div>
+
+            <div class="test-results">
+                <h3>🧪 Test Results Console</h3>
+                <div id="testOutput">Click any test button to see results...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test Framework
+        class TestFramework {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+            }
+
+            test(name, testFunction) {
+                this.tests.push({ name, testFunction });
+            }
+
+            expect(actual) {
+                return {
+                    toBe: (expected) => {
+                        if (actual === expected) {
+                            return { passed: true, message: `Expected ${expected}, got ${actual}` };
+                        }
+                        return { passed: false, message: `Expected ${expected}, got ${actual}` };
+                    },
+                    toEqual: (expected) => {
+                        if (JSON.stringify(actual) === JSON.stringify(expected)) {
+                            return { passed: true, message: `Arrays/Objects match` };
+                        }
+                        return { passed: false, message: `Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}` };
+                    },
+                    toBeGreaterThan: (expected) => {
+                        if (actual > expected) {
+                            return { passed: true, message: `${actual} is greater than ${expected}` };
+                        }
+                        return { passed: false, message: `${actual} is not greater than ${expected}` };
+                    },
+                    toBeTruthy: () => {
+                        if (actual) {
+                            return { passed: true, message: `${actual} is truthy` };
+                        }
+                        return { passed: false, message: `${actual} is falsy` };
+                    },
+                    toContain: (expected) => {
+                        if (actual.includes && actual.includes(expected)) {
+                            return { passed: true, message: `Contains ${expected}` };
+                        }
+                        return { passed: false, message: `Does not contain ${expected}` };
+                    }
+                };
+            }
+
+            async runTests() {
+                this.results = [];
+                const output = document.getElementById('testOutput');
+                output.innerHTML = '';
+
+                for (let test of this.tests) {
+                    try {
+                        const result = await test.testFunction();
+                        this.results.push({
+                            name: test.name,
+                            passed: result.passed,
+                            message: result.message
+                        });
+                        
+                        const resultElement = document.createElement('div');
+                        resultElement.className = result.passed ? 'test-passed' : 'test-failed';
+                        resultElement.innerHTML = `${result.passed ? '✅' : '❌'} ${test.name}: ${result.message}`;
+                        output.appendChild(resultElement);
+                    } catch (error) {
+                        this.results.push({
+                            name: test.name,
+                            passed: false,
+                            message: error.message
+                        });
+                        
+                        const resultElement = document.createElement('div');
+                        resultElement.className = 'test-failed';
+                        resultElement.innerHTML = `❌ ${test.name}: ${error.message}`;
+                        output.appendChild(resultElement);
+                    }
+                }
+
+                const summary = document.createElement('div');
+                summary.className = 'test-info';
+                const passed = this.results.filter(r => r.passed).length;
+                summary.innerHTML = `\n📊 Test Summary: ${passed}/${this.results.length} tests passed`;
+                output.appendChild(summary);
+
+                this.tests = []; // Clear tests for next run
+            }
+        }
+
+        const testFramework = new TestFramework();
+
+        // Application Code
+        class DataProcessor {
+            static bubbleSort(arr) {
+                const sorted = [...arr];
+                for (let i = 0; i < sorted.length - 1; i++) {
+                    for (let j = 0; j < sorted.length - i - 1; j++) {
+                        if (sorted[j] > sorted[j + 1]) {
+                            [sorted[j], sorted[j + 1]] = [sorted[j + 1], sorted[j]];
+                        }
+                    }
+                }
+                return sorted;
+            }
+
+            static findMax(arr) {
+                return Math.max(...arr);
+            }
+
+            static removeDuplicates(arr) {
+                return [...new Set(arr)];
+            }
+        }
+
+        class Calculator {
+            static add(a, b) { return a + b; }
+            static subtract(a, b) { return a - b; }
+            static multiply(a, b) { return a * b; }
+            static divide(a, b) { 
+                if (b === 0) throw new Error('Division by zero');
+                return a / b; 
+            }
+            static evaluate(expression) {
+                try {
+                    return Function('"use strict"; return (' + expression + ')')();
+                } catch (error) {
+                    throw new Error('Invalid expression');
+                }
+            }
+        }
+
+        class TodoManager {
+            constructor() {
+                this.todos = [];
+                this.nextId = 1;
+            }
+
+            add(text) {
+                const todo = {
+                    id: this.nextId++,
+                    text: text.trim(),
+                    completed: false,
+                    createdAt: new Date()
+                };
+                this.todos.push(todo);
+                return todo;
+            }
+
+            remove(id) {
+                const index = this.todos.findIndex(todo => todo.id === id);
+                if (index > -1) {
+                    return this.todos.splice(index, 1)[0];
+                }
+                return null;
+            }
+
+            toggle(id) {
+                const todo = this.todos.find(todo => todo.id === id);
+                if (todo) {
+                    todo.completed = !todo.completed;
+                    return todo;
+                }
+                return null;
+            }
+
+            getAll() {
+                return [...this.todos];
+            }
+
+            getCompleted() {
+                return this.todos.filter(todo => todo.completed);
+            }
+        }
+
+        class AsyncOperations {
+            static delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            static async fetchData(url) {
+                await this.delay(1000);
+                if (url.includes('error')) {
+                    throw new Error('Network error');
+                }
+                return { data: 'Sample data', status: 200 };
+            }
+
+            static async processMultipleRequests(urls) {
+                const promises = urls.map(url => this.fetchData(url));
+                return Promise.all(promises);
+            }
+        }
+
+        class EventManager {
+            constructor() {
+                this.listeners = {};
+                this.eventHistory = [];
+            }
+
+            on(event, callback) {
+                if (!this.listeners[event]) {
+                    this.listeners[event] = [];
+                }
+                this.listeners[event].push(callback);
+            }
+
+            emit(event, data) {
+                this.eventHistory.push({ event, data, timestamp: Date.now() });
+                if (this.listeners[event]) {
+                    this.listeners[event].forEach(callback => callback(data));
+                }
+            }
+
+            off(event, callback) {
+                if (this.listeners[event]) {
+                    this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+                }
+            }
+
+            getHistory() {
+                return [...this.eventHistory];
+            }
+        }
+
+        // Global instances
+        const todoManager = new TodoManager();
+        const eventManager = new EventManager();
+
+        // Calculator UI functions
+        function appendToCalc(value) {
+            const display = document.getElementById('calcDisplay');
+            if (display.value === '0') {
+                display.value = value;
+            } else {
+                display.value += value;
+            }
+        }
+
+        function clearCalc() {
+            document.getElementById('calcDisplay').value = '0';
+        }
+
+        function deleteLast() {
+            const display = document.getElementById('calcDisplay');
+            display.value = display.value.slice(0, -1) || '0';
+        }
+
+        function calculate() {
+            const display = document.getElementById('calcDisplay');
+            try {
+                display.value = Calculator.evaluate(display.value);
+            } catch (error) {
+                display.value = 'Error';
+            }
+        }
+
+        // Todo UI functions
+        function addTodo() {
+            const input = document.getElementById('todoInput');
+            if (input.value.trim()) {
+                todoManager.add(input.value);
+                input.value = '';
+                renderTodos();
+            }
+        }
+
+        function renderTodos() {
+            const list = document.getElementById('todoList');
+            list.innerHTML = '';
+            todoManager.getAll().forEach(todo => {
+                const item = document.createElement('div');
+                item.className = `todo-item ${todo.completed ? 'completed' : ''}`;
+                item.innerHTML = `
+                    <span>${todo.text}</span>
+                    <div>
+                        <button onclick="toggleTodo(${todo.id})">Toggle</button>
+                        <button onclick="removeTodo(${todo.id})">Remove</button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleTodo(id) {
+            todoManager.toggle(id);
+            renderTodos();
+        }
+
+        function removeTodo(id) {
+            todoManager.remove(id);
+            renderTodos();
+        }
+
+        // Event handling functions
+        function handleTestEvent() {
+            eventManager.emit('buttonClick', { button: 'eventTestBtn', timestamp: Date.now() });
+            document.getElementById('eventStatus').textContent = 'Button clicked!';
+        }
+
+        function handleSelectChange(value) {
+            eventManager.emit('selectChange', { value, timestamp: Date.now() });
+            document.getElementById('eventStatus').textContent = `Selected: ${value}`;
+        }
+
+        // Test Case 1: Data Structures & Algorithms
+        function testDataStructures() {
+            testFramework.test('Array sorting algorithm', () => {
+                const unsorted = [64, 34, 25, 12, 22, 11, 90];
+                const sorted = DataProcessor.bubbleSort(unsorted);
+                const expected = [11, 12, 22, 25, 34, 64, 90];
+                document.getElementById('sortedResult').textContent = `Sorted: [${sorted.join(', ')}]`;
+                return testFramework.expect(sorted).toEqual(expected);
+            });
+
+            testFramework.test('Find maximum in array', () => {
+                const arr = [3, 7, 2, 9, 1];
+                const max = DataProcessor.findMax(arr);
+                return testFramework.expect(max).toBe(9);
+            });
+
+            testFramework.test('Remove duplicates from array', () => {
+                const arr = [1, 2, 2, 3, 3, 3, 4];
+                const unique = DataProcessor.removeDuplicates(arr);
+                const expected = [1, 2, 3, 4];
+                return testFramework.expect(unique).toEqual(expected);
+            });
+
+            testFramework.runTests();
+        }
+
+        // Test Case 2: Calculator Operations
+        function testCalculator() {
+            testFramework.test('Basic arithmetic operations', () => {
+                const result1 = Calculator.add(5, 3);
+                const result2 = Calculator.multiply(4, 7);
+                return testFramework.expect(result1).toBe(8) && testFramework.expect(result2).toBe(28);
+            });
+
+            testFramework.test('Division by zero error handling', () => {
+                try {
+                    Calculator.divide(10, 0);
+                    return { passed: false, message: 'Should throw error for division by zero' };
+                } catch (error) {
+                    return testFramework.expect(error.message).toBe('Division by zero');
+                }
+            });
+
+            testFramework.test('Expression evaluation', () => {
+                const result = Calculator.evaluate('(10 + 5) * 2');
+                return testFramework.expect(result).toBe(30);
+            });
+
+            testFramework.test('Invalid expression handling', () => {
+                try {
+                    Calculator.evaluate('invalid expression');
+                    return { passed: false, message: 'Should throw error for invalid expression' };
+                } catch (error) {
+                    return testFramework.expect(error.message).toContain('Invalid');
+                }
+            });
+
+            testFramework.runTests();
+        }
+
+        // Test Case 3: Todo List Management
+        function testTodoList() {
+            const testTodoManager = new TodoManager();
+
+            testFramework.test('Add and retrieve todos', () => {
+                const todo = testTodoManager.add('Test task');
+                return testFramework.expect(todo.text).toBe('Test task') && 
+                       testFramework.expect(todo.completed).toBe(false);
+            });
+
+            testFramework.test('Toggle todo completion', () => {
+                const todo = testTodoManager.add('Another task');
+                testTodoManager.toggle(todo.id);
+                const updated = testTodoManager.getAll().find(t => t.id === todo.id);
+                return testFramework.expect(updated.completed).toBe(true);
+            });
+
+            testFramework.test('Remove todo', () => {
+                const todo = testTodoManager.add('Task to remove');
+                const removed = testTodoManager.remove(todo.id);
+                const remaining = testTodoManager.getAll();
+                return testFramework.expect(removed.id).toBe(todo.id) &&
+                       testFramework.expect(remaining.find(t => t.id === todo.id)).toBe(undefined);
+            });
+
+            testFramework.test('Filter completed todos', () => {
+                testTodoManager.add('Incomplete task');
+                const completedTodo = testTodoManager.add('Completed task');
+                testTodoManager.toggle(completedTodo.id);
+                const completed = testTodoManager.getCompleted();
+                return testFramework.expect(completed.length).toBe(1) &&
+                       testFramework.expect(completed[0].text).toBe('Completed task');
+            });
+
+            testFramework.runTests();
+        }
+
+        // Test Case 4: Asynchronous Operations
+        async function testAsyncOperations() {
+            const progressBar = document.getElementById('asyncProgress');
+            const status = document.getElementById('asyncStatus');
+
+            testFramework.test('Promise resolution with delay', async () => {
+                status.textContent = 'Testing promise delay...';
+                progressBar.style.width = '25%';
+                const start = Date.now();
+                await AsyncOperations.delay(500);
+                const elapsed = Date.now() - start;
+                return testFramework.expect(elapsed).toBeGreaterThan(400);
+            });
+
+            testFramework.test('Successful API call simulation', async () => {
+                status.textContent = 'Testing API call...';
+                progressBar.style.width = '50%';
+                const result = await AsyncOperations.fetchData('https://api.example.com/data');
+                return testFramework.expect(result.status).toBe(200) &&
+                       testFramework.expect(result.data).toBe('Sample data');
+            });
+
+            testFramework.test('Error handling in async operations', async () => {
+                status.textContent = 'Testing error handling...';
+                progressBar.style.width = '75%';
+                try {
+                    await AsyncOperations.fetchData('https://api.example.com/error');
+                    return { passed: false, message: 'Should throw error for error URL' };
+                } catch (error) {
+                    return testFramework.expect(error.message).toBe('Network error');
+                }
+            });
+
+            testFramework.test('Multiple concurrent requests', async () => {
+                status.textContent = 'Testing concurrent requests...';
+                progressBar.style.width = '100%';
+                const urls = [
+                    'https://api.example.com/data1',
+                    'https://api.example.com/data2'
+                ];
+                const results = await AsyncOperations.processMultipleRequests(urls);
+                return testFramework.expect(results.length).toBe(2) &&
+                       testFramework.expect(results[0].status).toBe(200);
+            });
+
+            await testFramework.runTests();
+            status.textContent = 'Async tests completed!';
+        }
+
+        // Test Case 5: Event System
+        function testEventHandling() {
+            const testEventManager = new EventManager();
+            let callbackData = null;
+
+            testFramework.test('Event listener registration and emission', () => {
+                testEventManager.on('test', (data) => {
+                    callbackData = data;
+                });
+                testEventManager.emit('test', { message: 'Hello World' });
+                return testFramework.expect(callbackData.message).toBe('Hello World');
+            });
+
+            testFramework.test('Multiple listeners for same event', () => {
+                let counter = 0;
+                testEventManager.on('counter', () => counter++);
+                testEventManager.on('counter', () => counter++);
+                testEventManager.emit('counter');
+                return testFramework.expect(counter).toBe(2);
+            });
+
+            testFramework.test('Event history tracking', () => {
+                testEventManager.emit('tracked', { id: 123 });
+                const history = testEventManager.getHistory();
+                const lastEvent = history[history.length - 1];
+                return testFramework.expect(lastEvent.event).toBe('tracked') &&
+                       testFramework.expect(lastEvent.data.id).toBe(123);
+            });
+
+            testFramework.test('Remove event listener', () => {
+                let called = false;
+                const callback = () => { called = true; };
+                testEventManager.on('remove-test', callback);
+                testEventManager.off('remove-test', callback);
+                testEventManager.emit('remove-test');
+                return testFramework.expect(called).toBe(false);
+            });
+
+            testFramework.runTests();
+        }
+
+        // Simulate API call with progress
+        async function simulateApiCall() {
+            const progressBar = document.getElementById('asyncProgress');
+            const status = document.getElementById('asyncStatus');
+            
+            status.textContent = 'Starting API call...';
+            progressBar.style.width = '0%';
+            
+            for (let i = 0; i <= 100; i += 10) {
+                await AsyncOperations.delay(100);
+                progressBar.style.width = i + '%';
+                status.textContent = `Loading... ${i}%`;
+            }
+            
+            status.textContent = 'API call completed successfully!';
+        }
+
+        // Initialize event listeners
+        eventManager.on('buttonClick', (data) => {
+            console.log('Button clicked:', data);
+        });
+
+        eventManager.on('selectChange', (data) => {
+            console.log('Selection changed:', data);
+        });
+    </script>
+</body>
+</html>
